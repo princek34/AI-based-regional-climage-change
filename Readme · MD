@@ -1,0 +1,219 @@
+# 🌍 Climate XAI Predictor
+
+An explainable AI frontend for climate variable forecasting. Predicts **Temperature**, **Rainfall**, and **CO₂** levels from environmental inputs, with full **SHAP-style feature contribution** visualizations per prediction.
+
+---
+
+## ✨ Features
+
+- **3 Predictions** — Temperature (°C), Rainfall (mm), CO₂ (ppm)
+- **SHAP Explanations** — Horizontal bar charts showing each feature's contribution to each prediction
+- **Absolute / Percentage Mode** — Toggle between raw contribution values and normalized percentages
+- **Scenario Manager** — Save, load, and delete named input+result snapshots (persisted in localStorage)
+- **Compare Mode** — Run two predictions and see delta values side-by-side on cards
+- **Export** — Download results as PNG screenshot or JSON data file
+- **Model Info Sidebar** — R² accuracy metrics, algorithm details, training metadata
+- **Demo Mode** — Fully functional with realistic mock data, no backend required
+- **Responsive** — Works on desktop, tablet, and mobile
+- **Accessible** — WCAG 2.1 AA: keyboard nav, ARIA labels, focus styles, reduced-motion support
+
+---
+
+## 🗂️ Project Structure
+
+```
+climate-xai/
+├── public/
+│   └── index.html                  # HTML shell
+├── src/
+│   ├── index.js                    # React entry point
+│   ├── App.jsx                     # Root layout — wires all panels together
+│   ├── styles.css                  # Full design system (dark sci-fi theme)
+│   │
+│   ├── services/
+│   │   └── api.js                  # fetchPrediction() + mock response generator
+│   │
+│   ├── context/
+│   │   └── store.js                # Zustand store: inputs, result, scenarios, UI state
+│   │
+│   ├── hooks/
+│   │   └── usePrediction.js        # Form → API → store wiring hook
+│   │
+│   ├── utils/
+│   │   └── helpers.js              # Formatting, chart math, export functions
+│   │
+│   └── components/
+│       ├── Header.jsx              # Sticky header: branding, nav, demo badge
+│       ├── InputForm.jsx           # 8-feature form with react-hook-form validation
+│       ├── PredictionCards.jsx     # 3 animated metric cards with gauge bars
+│       ├── ExplanationChart.jsx    # Per-target SHAP bar chart (Recharts)
+│       ├── ExplanationsPanel.jsx   # Hosts all 3 charts + abs/% mode toggle
+│       ├── ModelInfoSidebar.jsx    # Slide-in panel: model version, R², algo
+│       ├── ScenarioManager.jsx     # Save/load/delete named scenarios
+│       ├── ExportToolbar.jsx       # PNG + JSON export buttons
+│       └── LoadingAndError.jsx     # Skeleton cards + error alert
+│
+├── .env                            # Active environment variables
+├── .env.example                    # Environment variable template
+├── package.json
+└── README.md
+```
+
+---
+
+## 🚀 Quick Start
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Start in demo mode (no backend needed)
+
+```bash
+npm start
+```
+
+Open [http://localhost:3000](http://localhost:3000).  
+The app runs entirely with mock data — no backend required.
+
+### 3. Connect to your real backend
+
+Edit `.env`:
+
+```env
+REACT_APP_API_URL=http://your-backend.com
+REACT_APP_DEMO_MODE=false
+```
+
+Then restart: `npm start`
+
+---
+
+## 🔌 Backend API Contract
+
+### `POST /api/predict`
+
+**Request body:**
+```json
+{
+  "wind_speed": 4.2,
+  "humidity": 65,
+  "atmospheric_pressure": 1013.25,
+  "solar_radiation": 220,
+  "cloud_cover": 35,
+  "precipitation_lag": 6.5,
+  "temperature_lag": 22.0,
+  "co2_lag": 415.3
+}
+```
+
+**Expected response:**
+```json
+{
+  "predictions": {
+    "temperature": 25.6,
+    "rainfall": 12.3,
+    "co2": 415.7
+  },
+  "explanations": {
+    "temperature": [
+      { "feature": "wind_speed", "contribution": -0.84, "label": "Wind Speed" },
+      { "feature": "solar_radiation", "contribution": 3.96, "label": "Solar Radiation" }
+    ],
+    "rainfall": [ ... ],
+    "co2": [ ... ]
+  },
+  "model_info": {
+    "version": "v2.1.4",
+    "training_date": "2024-11-15",
+    "r2_temperature": 0.923,
+    "r2_rainfall": 0.871,
+    "r2_co2": 0.988,
+    "algorithm": "Gradient Boosted Trees (XGBoost)"
+  }
+}
+```
+
+- `contribution` — SHAP value (positive = pushes prediction up, negative = pushes down)
+- `label` — Human-readable feature name for display
+- `model_info` — Optional; shown in the Model Info sidebar if present
+
+---
+
+## 🧩 Input Features
+
+| Key | Label | Unit | Range |
+|-----|-------|------|-------|
+| `wind_speed` | Wind Speed | m/s | 0 – 120 |
+| `humidity` | Humidity | % | 0 – 100 |
+| `atmospheric_pressure` | Atmospheric Pressure | hPa | 870 – 1085 |
+| `solar_radiation` | Solar Radiation | W/m² | 0 – 1400 |
+| `cloud_cover` | Cloud Cover | % | 0 – 100 |
+| `precipitation_lag` | Precipitation (lag) | mm | 0 – 500 |
+| `temperature_lag` | Temperature (lag) | °C | -60 – 60 |
+| `co2_lag` | CO₂ (lag) | ppm | 280 – 600 |
+
+To add or remove features, update `FEATURE_RANGES` in `src/context/store.js`.  
+The form generates input fields dynamically from that config object.
+
+---
+
+## 📦 Tech Stack
+
+| Layer | Library |
+|-------|---------|
+| UI Framework | React 18 |
+| Styling | Custom CSS (design system via CSS variables) |
+| State Management | Zustand |
+| Form Handling | React Hook Form |
+| Charts | Recharts |
+| Icons | Lucide React |
+| Export | html2canvas, jsPDF |
+
+---
+
+## 🏗️ Build for Production
+
+```bash
+npm run build
+```
+
+Outputs optimized static files to `/build`. Deploy to any static host (Vercel, Netlify, S3, etc.).
+
+---
+
+## 🎨 Design System
+
+All colors and tokens are defined in `src/styles.css` as CSS variables:
+
+```css
+--bg-base: #060d1a;       /* Page background */
+--bg-card: #0d1b2e;       /* Card background */
+--orange: #f97316;        /* Positive contributions */
+--sky: #38bdf8;           /* Negative contributions */
+--lime: #a3e635;          /* CO₂ accent */
+```
+
+Fonts: **Space Mono** (monospace headings/values) + **DM Sans** (body text), loaded from Google Fonts.
+
+---
+
+## 🔧 Extending the App
+
+**Add a new input feature:**
+1. Add entry to `FEATURE_RANGES` in `store.js`
+2. Add default value to `DEFAULT_INPUTS` in `store.js`
+3. Backend must return the feature key in `explanations`
+
+**Add a new prediction target:**
+1. Add config to `CARD_CONFIG` in `PredictionCards.jsx`
+2. Add entry to `EXPLANATION_TARGETS` in `ExplanationsPanel.jsx`
+3. Match `predictions` and `explanations` keys in API response
+
+---
+
+## 📄 License
+
+MIT — free for research and educational use.

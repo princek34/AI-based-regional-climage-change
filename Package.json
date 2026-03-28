@@ -1,0 +1,25 @@
+{
+  "name": "climate-xai-predictor",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "recharts": "^2.10.3",
+    "react-hook-form": "^7.49.3",
+    "zustand": "^4.4.7",
+    "lucide-react": "^0.303.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1"
+  },
+  "scripts": {
+    "dev": "react-scripts start",
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "browserslist": {
+    "production": [">0.2%", "not dead"],
+    "development": ["last 1 chrome version"]
+  }
+}
